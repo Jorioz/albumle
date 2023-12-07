@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="index.css">
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans&family=Poppins&family=VT323&display=swap" rel="stylesheet"> 
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <title>albumle</title>
+    <meta name = "description" content= "try and guess a new album everyday">
+    <meta name = "keywords" content = "albumle, wordle, albumdle, guessing game, album guessing game">
+    <meta property = "og:title" content = "albumle">
+    <meta property = "og:description" content = "try and guess a new album everyday">
+    <meta property = "og:image" content = "i.imgur.com/5z5Tb82.png">
+    <meta property = "og:url" content = "https://albumle.com">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="pixelator.js"></script>
+    <script src="./index.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body class="bg-dark">
+  <div id = "loading" class="bg-dark text-white">
+    <img src = "https://piskel-imgstore-b.appspot.com/img/37a5fde8-9246-11ee-9352-d99645c2783c.gif" alt = "loading">
+  </div>
+  <div class="container-fluid">
+    <div class="header d-flex justify-content-center align-items-center mx-auto d-block">
+      <div class="header-center">
+        <div class="header-title col-md-auto">
+            <span>a</span>
+            <span>l</span>
+            <span>b</span>
+            <span>u</span>
+            <span>m</span>
+            <span>l</span>
+            <span>e</span>
+          </div>
+        <div class="col"></div>
+      </div>
+    </div>
+
+    <div class="main d-flex justify-content-center align-items-center mx-auto d-block">
+      <div class = "alert-container">
+      </div>
+      <div class="img-container">
+          <img id = "image1"  alt="Album Cover" class="img-fluid rounded mx-auto d-block"/>
+      </div>
+      <div class="input-group input-group-lg mb-3">
+        <input type="text" class="form-control rounded-0 border-0" list="albumList" id="input" placeholder="enter an album" aria-label="Enter an Album" aria-describedby="button-addon2" autocomplete="off" spellcheck="false">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">GO</button>
+        </div>
+        <div class="results-box">
+          <ul>
+          </ul>
+        </div>
+    </div>
+    <div class = box-container>
+    </div>
+  </div>
+
+  </div>
+  <script>
+
+    var firebaseConfig = {
+      apiKey: "AIzaSyDOPhdbObesQX6DPDR5I8tDZb8qFBtlC6k",
+      authDomain: "albumle-f5280.firebaseapp.com",
+      projectId: "albumle-f5280",
+      storageBucket: "albumle-f5280.appspot.com",
+      messagingSenderId: "465045902548",
+      appId: "1:465045902548:web:fe71ef1908babfbfd99741",
+      measurementId: "G-3YJRB2DEJC"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+crossorigin="anonymous"></script>
+</html>
