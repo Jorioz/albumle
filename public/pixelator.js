@@ -1,18 +1,13 @@
-document.addEventListener("imageSet", function() {
-    console.log("imageSet event received");
-    let img1 = new Image();
-    img1.crossOrigin = "Anonymous";
-    img1.onload = function() {
-        loadImage(img1); // Pass img1 to loadImage
+// In pixelator.js
+function processAlbumCoverImage(imageUrl) {
+    let img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = function() {
+        loadImage(img);
     };
+    img.src = imageUrl;
+}
 
-    let imageElement = document.getElementById("image1");
-    if (imageElement && imageElement.src) {
-        img1.src = imageElement.src; 
-    } else {
-        console.error("Image source not found");
-    }
-});
 window.sample_size = 71;
 window.loadImage = function(img){
     let c = document.createElement('canvas');

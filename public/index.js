@@ -6,6 +6,7 @@ let albumNames = [];
 let guesses = [];
 let sample_size = window.sample_size;
 let loadImage = window.loadImage;
+let currentAlbumCoverUrl;
 
 $(window).on('load', function() {
     fetchPlaylistData();
@@ -15,7 +16,8 @@ $(window).on('load', function() {
     });
 });
 
-$(document).ready(function(){   
+$(document).ready(function(){  
+     
     checkWinLose();
     var savedState = getCookie("gameState");
     if (savedState !== null) {
@@ -31,16 +33,19 @@ $(document).ready(function(){
 
         $('.box').each(function(index) {
             if (index < guesses.length) {
-                $(this).text(guesses[index].guess);
+                var span = $('<span>').text(guesses[index].guess);
+                $(this).empty().append(span);
                 if (guesses[index].isCorrect) {
                     $(this).addClass('correct');
+                } else if (guesses[index].hasHint) {
+                    $(this).addClass('hint');
                 } else {
                     $(this).addClass('incorrect');
                 }
             }
         });
 
-        if (currentGuess < 5) {
+        if (currentGuess <= 6 && !isCorrect){
             $('.box').eq(currentGuess).addClass('current');
         }
         updateCanvas();
@@ -52,7 +57,7 @@ $(document).ready(function(){
     function createBoxes() {
         const container = $('.box-container').first();
         if ($('.box').length === 0) {
-            for (let i = 0; i < 5; i++){
+            for (let i = 0; i < 6; i++){
                 const box = $('<div>').addClass('box').text('guess #' + (i+1));
                 container.append(box);
             }
@@ -63,18 +68,25 @@ $(document).ready(function(){
     function checkGuess(){
         const inputValue = $('#input').val();
         let guessCorrectness = inputValue.includes(correctAnswer);
-        guesses[currentGuess] = { guess: inputValue, isCorrect: guessCorrectness };
-        $('.box').eq(currentGuess).text(inputValue);
-        if (guessCorrectness) {
-            $('.box').eq(currentGuess).addClass('correct');
-            isCorrect = true; 
+        let guessHasHint = inputValue.toLowerCase().includes(artistName.toLowerCase());
 
+        guesses[currentGuess] = { guess: inputValue, isCorrect: guessCorrectness, hasHint: guessHasHint };
+        var span = $('<span>').text(inputValue);
+        var $currentBox = $('.box').eq(currentGuess);
+        $currentBox.empty().append(span);
+
+        if (guessCorrectness) {
+            $currentBox.addClass('correct');
+            isCorrect = true; 
+        } else if (guessHasHint){
+            $currentBox.addClass('hint');
         } else {
-            $('.box').eq(currentGuess).addClass('incorrect');
-        }  
+            $currentBox.addClass('incorrect');
+        }
+
         currentGuess++;
         saveGameState();
-        if (currentGuess <= 5){
+        if (currentGuess <= 6){
             $('.box').eq(currentGuess).addClass('current');
             updateCanvas();
         }
@@ -85,34 +97,23 @@ $(document).ready(function(){
     function updateCanvas(){
         if (isCorrect){
             sample_size = 1;
-        }
-        if (!isCorrect){
-        if (currentGuess === 0){
-            sample_size = 71;
-        } else if (currentGuess === 1){
-            sample_size = 53;
-        } else if (currentGuess === 2){
-            sample_size = 31;
-        } else if (currentGuess === 3){
-            sample_size = 20;
         } else {
-            sample_size = 10;
+            const sampleSizes = [71, 63, 53, 31, 20, 10];
+            sample_size = currentGuess < sampleSizes.length ? sampleSizes[currentGuess] : 1;
         }
-        if (isCorrect || (!isCorrect && currentGuess === 5)){
-            sample_size = 1;
-        }
-    }
-        const imageElement = document.getElementById('image1');
-        if (imageElement && imageElement.src) {
+    
+        if (currentAlbumCoverUrl) {
             let img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = function () {
-                $('canvas').remove(); // Remove the old canvas
-                loadImage(img); // Pass the image to loadImage
+                $('canvas').remove();
+                loadImage(img); 
             };
-            img.src = imageElement.src; // This triggers the onload
+            img.src = currentAlbumCoverUrl;
         }
     }
+    
+
 
     function autocomplete() {
         const input = $('#input').val().toLowerCase();
@@ -139,16 +140,15 @@ $(document).ready(function(){
     }
 
     function onListItemClick() {
-        const text = $(this).text(); // Get the text of the clicked li
-        $('#input').val(text); // Set the text to the input box
-        $('.results-box').hide(); // Optionally hide the results box
+        const text = $(this).text();
+        $('#input').val(text); 
+        $('.results-box').hide(); 
     }
 
     function clearInput() {
         $('#input').val('');
     }
 
-    
     $('#input').on('focus', function() {
         autocomplete();
         checkWinLose();
@@ -195,9 +195,40 @@ $(document).ready(function(){
             }
         }
     });
+    //Scroll Animation
+    var $boxes = $('.box');
+
+    $boxes.hover(function() {
+        var $box = $(this);
+        var $span = $box.find('span');
+        var speed = 200;
+
+        var boxWidth = $box.width();
+        var spanWidth = $span.width();
+        var duration = spanWidth / speed; 
+
+        if (spanWidth > boxWidth) {
+            var keyframes = `
+                @keyframes scroll {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(calc(-100% + ${boxWidth}px)); }
+                }
+            `;
+
+            var styleSheet = document.createElement('style');
+            styleSheet.textContent = keyframes;
+            document.head.appendChild(styleSheet);
+
+            $span.css('animation', `scroll ${duration}s cubic-bezier(0,0,.8,1) forwards`);
+        }
+    }, function() {
+        var $box = $(this);
+        var $span = $box.find('span');
+        $span.css('animation', '');
+    });
 });
 
-//Vanilla JS
+//Logic
 function fetchPlaylistData(){
     return db.collection('dailyAlbum').doc('current').get()
     .then(doc => {
@@ -214,14 +245,12 @@ function fetchPlaylistData(){
                 setCookie("prevAlbum", previousAlbum, 1);
             }
             checkAndReset();
-            const imageElement = document.getElementById('image1');
-            if (imageElement && albumData.albumCover) {
-                imageElement.src = albumData.albumCover;
+            if (albumData.albumCover){
+                processAlbumCoverImage(albumData.albumCover);
+                currentAlbumCoverUrl = albumData.albumCover;
             } else {
-                console.log("Album cover undefined");
+                console.error("Album cover URL is undefined");
             }
-            const imageSetEvent = new CustomEvent("imageSet");
-            document.dispatchEvent(imageSetEvent);
             console.log("Got playlist data");
             return albumData;
         } else {
@@ -240,9 +269,7 @@ function fetchCompletePlaylistData() {
     .then(doc => {
         if (doc.exists){
             const playlistData = doc.data().allTracks;
-            console.log("Got complete playlist data");
-
-            if (playlistData.length > 0){
+            if (playlistData && playlistData.length > 0){
                 updateDatalistWithPlaylist(playlistData);
             } else {
                 console.log("No complete playlist data available.");
@@ -250,7 +277,7 @@ function fetchCompletePlaylistData() {
             return playlistData;
         } else {
             console.log("No complete playlist data available.");
-            throw new Error("No complete playlist data available.");
+            return []; 
         }
     })
     .catch(error => {
@@ -258,6 +285,7 @@ function fetchCompletePlaylistData() {
         throw error;
     });
 }
+
 
 function updateDatalistWithPlaylist(tracksData) {
     const resultsBox = document.querySelector('.results-box ul');
@@ -349,7 +377,7 @@ function checkWinLose(){
                 scalar: 0.8,
             });
         }, 500);
-    } else if (gameState.guesses.length === 5) {
+    } else if (gameState.guesses.length === 6) {
         $('.alert-container').html('<h3>Game Over</h3><p>' + gameState.correctAnswer + '</p><p>' + gameState.artistName + '</p>').fadeIn();
         $('#input').prop('disabled', true);
     } else {
