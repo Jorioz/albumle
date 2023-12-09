@@ -69,35 +69,40 @@ $(document).ready(function(){
         const firstBox = $('.box').first();
         firstBox.addClass('current');
     }
-    function checkGuess(){
+    function checkGuess() {
         const inputValue = $('#input').val().trim();
         originalInputValue = inputValue;
-        const inputValueLowerCase = inputValue.toLowerCase(); 
+        const inputValueLowerCase = inputValue.toLowerCase();
         const correctAnswerLowerCase = correctAnswer.toLowerCase();
-        let guessCorrectness = inputValueLowerCase === correctAnswerLowerCase;
+    
+        const acceptableAnswers = [
+            correctAnswerLowerCase,
+            correctAnswerLowerCase + " - " + artistName.toLowerCase()
+        ];
+        let guessCorrectness = acceptableAnswers.includes(inputValueLowerCase);
         let guessHasHint = inputValueLowerCase.includes(artistName.toLowerCase());
-
+    
         guesses[currentGuess] = { guess: inputValue, isCorrect: guessCorrectness, hasHint: guessHasHint };
         var span = $('<span>').text(originalInputValue);
         var $currentBox = $('.box').eq(currentGuess);
         $currentBox.empty().append(span);
-
+    
         if (guessCorrectness) {
             $currentBox.addClass('correct');
-            isCorrect = true; 
-        } else if (guessHasHint){
+            isCorrect = true;
+        } else if (guessHasHint) {
             $currentBox.addClass('hint');
         } else {
             $currentBox.addClass('incorrect');
         }
-
+    
         currentGuess++;
         saveGameState();
-        if (currentGuess <= 6){
+        if (currentGuess <= 6) {
             $('.box').eq(currentGuess).addClass('current');
             updateCanvas();
         }
-        checkWinLose()
+        checkWinLose();
     }
     
 
