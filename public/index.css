@@ -15,36 +15,29 @@ body{
     flex-direction: column;
     min-height: 100%;
 }
-
-.header{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    width: 100%;
-    max-width: 500px;
+.navbar-brand {
+    font-size: min(10vw, 30px)!important;
 }
 
-
-.header hr{
-    width: 100%;
+.navbar-toggler {
+    color: rgb(255,255,255,0)!important;
+    background-color: rgba(0,0,0,0)!important;
+    border-radius: 0!important;
+    height: 100%!important;
+    border: none!important;
 }
 
-.header-title {
-    display: inline-flex;
-    align-items: center;
-    width: auto;
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.5)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")!important;
+    transition: background-image 0.3s ease-in-out!important;
+    
 }
 
-.header-title > span {
-    font-family: 'Apple';
-    src: url('Apple\ ][.ttf');
-    font-size: min(10vw, 50px);
-    opacity: 0;
-    animation: fade-in 0.5s forwards, flash 0.5s 1s forwards;
-    transition: color 0.3s ease-in-out;
-    color: white;
+.navbar-toggler-icon:hover {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e")!important;
 }
+
+  
 
 @keyframes move-bg {
     to {
@@ -58,14 +51,6 @@ body{
     }
 }
 
-.header span:nth-child(1) { animation-delay: 0.05s; }
-.header span:nth-child(2) { animation-delay: 0.1s; }
-.header span:nth-child(3) { animation-delay: 0.15s; }
-.header span:nth-child(4) { animation-delay: 0.2s; }
-.header span:nth-child(5) { animation-delay: 0.25s; }
-.header span:nth-child(6) { animation-delay: 0.3s; }
-.header span:nth-child(7) { animation-delay: 0.35s; }
-
 .main{
     display: flex;
     flex-direction: column;
@@ -73,7 +58,6 @@ body{
     max-width: 400px;
     height: 100%;
     font-family: 'Apple', sans-serif;
-    padding: 10px;
 }
 
 .img-container{
@@ -83,9 +67,34 @@ body{
     height: auto;
     width: 100%;
     padding: min(2vw, 10px);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
+.help-button, .helpText {
+    display: inline-block; /* Make the elements inline */
+}
+
+.help-button {
+    display: inline-block; /* Make the element inline */
+    vertical-align: top; /* Align the element to the top */
+}
+
+.helpText {
+    display: block; /* Make the element block */
+    width: 100%; /* Make the help text take up the whole width */
+    font-size: 13px;
+}
+.hlRed {
+    color: rgb(255, 73, 73);  /* Change this to the color you want */
+}
+
+.hlYel{
+    color: rgb(255, 187, 0);
+}
+
+.hlGrn{
+    color: rgb(113, 255, 100);
+}
 
 .img-container img{
     height: 100%;
@@ -104,8 +113,60 @@ body{
     
 }
 
+.navbar-nav > li{
+    color: white !important;
+    font-size: 18px!important;
+
+}
+
+.navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+}
+
+.navbar-nav li {
+    display: inline-block !important;
+    margin-right: 10px !important;
+    margin-top: 10px !important;
+}
+
+.version{
+    color: white;
+    opacity: 0.3;
+    font-size: 12px;
+}
+
+navbarNav.navbar-collapse.collapse.show {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+}
+
+#navbarNav.navbar-collapse.collapse.show ul.navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+#navbarNav.navbar-collapse.collapse.show ul.navbar-nav li {
+    display: inline-block !important;
+}
+
 #input{
     font-size: 17px;
+}
+
+#button-addon{
+    color: rgba(255,255,255,0.5);
+    background-color: rgb(39, 43, 48);
+    border-radius: 0;
+    height: 100%;
+    border: none;
+    max-height: 30px;
+}
+
+#button-addon:hover{
+    background-color: rgb(49, 54, 59);
 }
 
 #button-addon2{
@@ -120,9 +181,22 @@ body{
     background-color: rgb(49, 54, 59);
 }
 
+#copyButton{
+    color: rgba(255,255,255,0.5);
+    background-color: rgb(28, 30, 34); 
+    border-radius: 0;
+    height: 100%;
+    border: none;
+    margin-left: 5px;
+}
+
+#copyButton:hover{
+    background-color: rgb(49, 54, 59);
+}
+
 #button-addon3{
     color: rgba(255,255,255,0.5);
-    background-color: rgb(39, 43, 48);
+    background-color: rgb(28, 30, 34); 
     border-radius: 0;
     height: 100%;
     border: none;
@@ -135,7 +209,7 @@ body{
 
 .results-box{
     width: 100%;
-    max-height: 200px;
+    max-height: 170px;
     overflow-y: auto;
     position: absolute;
     margin-top: 50px;

@@ -7,8 +7,11 @@ let guesses = [];
 let sample_size = window.sample_size;
 let loadImage = window.loadImage;
 let currentAlbumCoverUrl;
+let usedAlbums = 0;
+let originalInputValue = '';
 
 $(window).on('load', function() {
+    fetchUsedAlbumsCount();
     fetchPlaylistData();
     fetchCompletePlaylistData();
     $('#loading').fadeOut('slow', function() {
@@ -17,7 +20,8 @@ $(window).on('load', function() {
 });
 
 $(document).ready(function(){  
-     
+
+    
     checkWinLose();
     var savedState = getCookie("gameState");
     if (savedState !== null) {
@@ -66,12 +70,15 @@ $(document).ready(function(){
         firstBox.addClass('current');
     }
     function checkGuess(){
-        const inputValue = $('#input').val();
-        let guessCorrectness = inputValue.includes(correctAnswer);
-        let guessHasHint = inputValue.toLowerCase().includes(artistName.toLowerCase());
+        const inputValue = $('#input').val().trim();
+        originalInputValue = inputValue;
+        const inputValueLowerCase = inputValue.toLowerCase(); 
+        const correctAnswerLowerCase = correctAnswer.toLowerCase();
+        let guessCorrectness = inputValueLowerCase.includes(correctAnswerLowerCase);
+        let guessHasHint = inputValueLowerCase.includes(artistName.toLowerCase());
 
         guesses[currentGuess] = { guess: inputValue, isCorrect: guessCorrectness, hasHint: guessHasHint };
-        var span = $('<span>').text(inputValue);
+        var span = $('<span>').text(originalInputValue);
         var $currentBox = $('.box').eq(currentGuess);
         $currentBox.empty().append(span);
 
@@ -161,6 +168,7 @@ $(document).ready(function(){
         const inputValue = $(this).val().toLowerCase();
         if (e.key === 'Enter' && $('#input').val().length > 0) {
             e.preventDefault();
+            $('.results-box').hide(); 
             const isAlbumMatch = albumNames.some(albumNames => inputValue.includes(albumNames));
             if (isAlbumMatch){
             checkGuess();
@@ -180,6 +188,7 @@ $(document).ready(function(){
     $('#button-addon2').on('click', function() {
         const inputValue = $('#input').val().toLowerCase(); 
         if (inputValue.length > 0) {
+            $('.results-box').hide(); 
             const isAlbumMatch = albumNames.some(albumName => inputValue.includes(albumName));
             if (isAlbumMatch) {
                 checkGuess();
@@ -195,6 +204,80 @@ $(document).ready(function(){
             }
         }
     });
+    $('#copyButton').click(function() {
+        var copyText = "albumle " + usedAlbums + " " + currentGuess + "/6\n" + document.getElementById("shareableText").value + "\nhttps://albumle.app";
+    
+        navigator.clipboard.writeText(copyText)
+            .then(() => {
+                $(this).text("Copied!");
+    
+                setTimeout(() => $(this).text("Copy"), 800);
+            })
+            .catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+    });
+    
+    var interval;
+    $('.help-button').on('click', function (event) {
+        event.stopPropagation();
+     
+        var button = $(this);
+        var helpText = $('.helpText');
+     
+        if (button.text() == '[how to play]') {
+            button.text('[close]');
+     
+            var text = 'Like Wordle but for Albums. Each guess decreases the pixelation a bit less.<span class="hlRed"> Red</span> = incorrect, <span class="hlYel">Yellow</span> = right artist, <span class="hlGrn">Green</span> = correct. Check back every day for a new album.';
+            var index = 0;
+     
+            clearInterval(interval);
+            interval = setInterval(function () {
+                var currentText = text.slice(0, ++index);
+                helpText.html(currentText);
+                index++;
+     
+                if (index > text.length) {
+                    clearInterval(interval);
+                }
+            }, 45); 
+     
+        } else {
+            button.text('[how to play]');
+            var index = helpText.text().length;
+     
+            clearInterval(interval);
+            interval = setInterval(function () {
+                var currentText = helpText.text().slice(0, --index);
+                helpText.html(currentText);
+     
+                if (index <= 0) {
+                    clearInterval(interval);
+                }
+            }, 3);
+        }
+    });
+    
+    
+    $(document).on('click', function () {
+        var button = $('.help-button');
+        var helpText = $('.helpText');
+    
+        if (button.text() == '[close]') {
+            button.text('[help]');
+            var index = helpText.text().length;
+    
+            clearInterval(interval); // Clear the previous interval
+            interval = setInterval(function() {
+                helpText.text(helpText.text().slice(0, --index));
+                if (index <= 0){
+                    clearInterval(interval);
+                }
+            }, 5); // Adjust the speed of deleting here
+        }
+    });
+
+
     //Scroll Animation
     var $boxes = $('.box');
 
@@ -219,7 +302,7 @@ $(document).ready(function(){
             styleSheet.textContent = keyframes;
             document.head.appendChild(styleSheet);
 
-            $span.css('animation', `scroll ${duration}s cubic-bezier(0,0,.8,1) forwards`);
+            $span.css('animation', `scroll ${duration}s cubic-bezier(.21,.01,.75,1.01) forwards`);
         }
     }, function() {
         var $box = $(this);
@@ -285,6 +368,21 @@ function fetchCompletePlaylistData() {
         throw error;
     });
 }
+
+function fetchUsedAlbumsCount() {
+    return db.collection('usedAlbums').get()
+        .then(querySnapshot => {
+            const count = querySnapshot.size; 
+            usedAlbums = count; 
+            return count;
+        })
+        .catch(error => {
+            console.error('Error fetching used albums count:', error);
+            throw error;
+        });
+}
+
+
 
 
 function updateDatalistWithPlaylist(tracksData) {
@@ -359,35 +457,71 @@ function resetGameState(){
     setCookie("gameState", JSON.stringify(gameState), 1);
     }
 
-
-function checkWinLose(){
-    var gameStateStr = getCookie("gameState");
-    if (gameStateStr){
-    var gameState = JSON.parse(gameStateStr);
-    if (gameState.isCorrect){
-        $('.alert-container').html('<h3>You Win</h3><p>' + gameState.correctAnswer + '</p><p>' + gameState.artistName + '</p>').fadeIn();
-        $('#input').prop('disabled', true);
-        setTimeout(function(){
-            confetti({
-                particleCount: 100,
-                origin: { y: 0.6 },
-                shapes: ['square'],
-                colors: ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'],
-                flat: true,
-                scalar: 0.8,
-            });
-        }, 500);
-    } else if (gameState.guesses.length === 6) {
-        $('.alert-container').html('<h3>Game Over</h3><p>' + gameState.correctAnswer + '</p><p>' + gameState.artistName + '</p>').fadeIn();
-        $('#input').prop('disabled', true);
-    } else {
-        $('.alert-container').fadeOut();
-        $('#input').prop('disabled', false);
-    }
-}
-    $('.alert-container').append('<button class="btn btn-outline shadow-none" id = "button-addon3" >X</button>');
+    function checkWinLose(){
+        var gameStateStr = getCookie("gameState");
+        if (gameStateStr){
+            var gameState = JSON.parse(gameStateStr);
+            if (gameState.isCorrect){
+                var shareableText = generateShareableText(gameState);
+                $('.alert-container').css('text-align', 'center').html('<h3>You Win!</h3><p>' + gameState.correctAnswer + '</p><p>' + gameState.artistName + '</p><br><p>New album: <span id="time-until-midnight"></span></p><p>Share your results: <br>' + shareableText + '</p><input type="text" value="' + shareableText + '" id="shareableText" style="display: none;"><button id="copyButton">Copy</button>').fadeIn();
+                $('#input').prop('disabled', true);
+                setTimeout(function(){
+                    confetti({
+                        particleCount: 100,
+                        origin: { y: 0.6 },
+                        shapes: ['square'],
+                        colors: ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'],
+                        flat: true,
+                        scalar: 0.8,
+                    });
+                }, 500 );
+            } else if (gameState.guesses.length === 6) {
+                var shareableText = generateShareableText(gameState);
+                $('.alert-container').css('text-align', 'center').html('<h3>Game Over.</h3><p>' + gameState.correctAnswer + '</p><p>' + gameState.artistName + '</p><br><p>New album: <span id="time-until-midnight"></span></p><p>Share your results: <br>' + shareableText + '</p><input type="text" value="' + shareableText + '" id="shareableText" style="display: none;"><button id="copyButton">Copy</button>').fadeIn();
+                $('#input').prop('disabled', true);
+            } else {
+                $('.alert-container').fadeOut();
+                $('#input').prop('disabled', false);
+            }
+        }
+        $('.alert-container').append('<button id = "button-addon3" >Close</button>');
+        
+        $('#button-addon3').click(function() {
+            $('.alert-container').fadeOut();
+        });
     
-    $('#button-addon3').click(function() {
-        $('.alert-container').fadeOut();
-    });
-}
+        // Update the time until midnight every second
+        setInterval(updateTimeUntilMidnight, 1000);
+    }
+
+    function updateTimeUntilMidnight() {
+        var now = moment().tz("America/New_York");
+        var midnight = moment().tz("America/New_York").endOf('day');
+    
+        var hours = midnight.diff(now, 'hours');
+        var minutes = midnight.diff(now, 'minutes') % 60;
+        var seconds = midnight.diff(now, 'seconds') % 60;
+    
+        var timeUntilMidnight = hours + 'h, ' + minutes + 'm, ' + seconds + 's';
+    
+        // Display the time until midnight
+        $('#time-until-midnight').text(timeUntilMidnight);
+    }
+
+    function generateShareableText(gameState){
+        let shareableText = '';
+        for (let i = 0; i < 6; i++){
+            if (i < gameState.guesses.length){
+                if (gameState.guesses[i].isCorrect){
+                    shareableText += '🟩';
+                } else if (gameState.guesses[i].hasHint){
+                    shareableText += '🟨';
+                } else {
+                    shareableText += '🟥';
+                }
+            } else {
+                shareableText += '⬛';
+            }
+        }
+        return shareableText;
+    }
