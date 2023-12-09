@@ -74,7 +74,7 @@ $(document).ready(function(){
         originalInputValue = inputValue;
         const inputValueLowerCase = inputValue.toLowerCase(); 
         const correctAnswerLowerCase = correctAnswer.toLowerCase();
-        let guessCorrectness = inputValueLowerCase.includes(correctAnswerLowerCase);
+        let guessCorrectness = inputValueLowerCase === correctAnswerLowerCase;
         let guessHasHint = inputValueLowerCase.includes(artistName.toLowerCase());
 
         guesses[currentGuess] = { guess: inputValue, isCorrect: guessCorrectness, hasHint: guessHasHint };
@@ -204,7 +204,7 @@ $(document).ready(function(){
             }
         }
     });
-    $('#copyButton').click(function() {
+    $(document).on('click', '#copyButton', function() {
         var copyText = "albumle " + usedAlbums + " " + currentGuess + "/6\n" + document.getElementById("shareableText").value + "\nhttps://albumle.app";
     
         navigator.clipboard.writeText(copyText)
@@ -264,7 +264,7 @@ $(document).ready(function(){
         var helpText = $('.helpText');
     
         if (button.text() == '[close]') {
-            button.text('[help]');
+            button.text('[how to play]');
             var index = helpText.text().length;
     
             clearInterval(interval); // Clear the previous interval
