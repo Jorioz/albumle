@@ -6,14 +6,16 @@
 body{
     display: flex;
     flex-direction: column;
-
+    max-height: 100vh;
 }
 
 .container-fluid{
     max-width: 800px;
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: 100%;
+    padding-left: 15px!important;
+    padding-right: 15px!important;
 }
 .navbar-brand {
     font-size: min(10vw, 30px)!important;
@@ -331,7 +333,7 @@ navbarNav.navbar-collapse.collapse.show {
     z-index: 2000;
     background-color: rgb(39, 43, 48); 
     box-shadow: 0px 14px 0px 0px rgb(28, 30, 34); 
-    padding: 10px;
+    padding: 5px;
 }
 
 .alert-container p{
