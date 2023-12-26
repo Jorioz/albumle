@@ -34,5 +34,5 @@ While albumle is complete, there are some quality-of-life updates I want to even
 
 - Streak tracker.
 
-- Share score feauture after daily game.
+- ~~Share score feauture after daily game.~~ (Implemented)
 
