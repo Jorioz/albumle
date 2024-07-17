@@ -15,7 +15,6 @@ const config: Config = {
       },
       fontFamily: {
         apple: ["var(--font-apple)"],
-        hellovetica: ["var(--font-hellovetica)"],
       },
       dropShadow: {
         glow: [

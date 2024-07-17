@@ -13,15 +13,6 @@ const apple = localfont({
   variable: "--font-apple",
 });
 
-const hellovetica = localfont({
-  src: [
-    {
-      path: "../../public/Hellovetica.ttf",
-    },
-  ],
-  variable: "--font-hellovetica",
-});
-
 export const metadata: Metadata = {
   title: "albumle",
   description: "the daily album guessing game.",
@@ -33,11 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      translate="no"
-      className={`Inter ${apple.variable} ${hellovetica.variable} `}
-    >
+    <html lang="en" translate="no" className={`Inter ${apple.variable} `}>
       <body>{children}</body>
     </html>
   );
